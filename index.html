@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trampoline rental</title>
+    <link rel="stylesheet" href="css/default.css">
+
+    <style>
+        body {
+            background-color: #fffcfc;
+
+        }
+
+        header {
+            color: white;
+            background-color: #1976d2;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            padding: 5px 0px;
+        }
+
+        .top-site {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .top-site div {
+            width: 100%;
+            max-width: 1240px;
+            text-align: center;
+        }
+
+        img {
+            min-height: 150px;
+            height: 15vh;
+            width: 100%;
+            object-fit: cover;
+            /* corta a imagem */
+            object-position: 100% 42%;
+            /* define a área visível */
+
+        }
+
+        table,
+        th,
+        td {
+
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 15px 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Trampoline Rental</h1>
+    </header>
+    <section>
+        <img src="assets/principal.png" alt="Imagem mostra crianças usando os trampolins" loading="lazy">
+    </section>
+    <section class="top-site">
+        <div>
+            <h2 style="padding-bottom: 10px;">Rental Management</h2>
+            <table id="table" style="width: 100%;">
+                <thead>
+
+                    <tr>
+                        <th>ID</th>
+                        <th>Rent Date</th>
+                        <th>Hours Rented</th>
+                        <th>Rent Amount</th>
+                        <th>Renter</th>
+                    </tr>
+                </thead>
+                <tbody id="body-table">                    
+                </tbody>
+
+            </table>
+        </div>
+    </section>
+    <script>
+        const mock = [
+            {
+                "hours_rented": 2,
+                "id": 2,
+                "rent_amount": "1.00",
+                "rent_date": "2024-04-06",
+                "renter": "Fernando"
+            },
+            {
+                "hours_rented": 2,
+                "id": 4,
+                "rent_amount": "1.00",
+                "rent_date": "2024-04-08",
+                "renter": "Fernando"
+            }
+        ]
+
+        const formatDateForTable = (date) => {
+            const dateProcessed = new Date(`${date}T00:00:00`)
+            return new Intl.DateTimeFormat("pt-BR", {
+                weekday: "long",
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric"
+            }).format(dateProcessed);
+
+        }
+
+        const findData = () => {
+            const bodyTable = document.getElementById("body-table");
+            console.log(formatDateForTable('2024-04-06'))
+            const rows = mock.map(r => {
+                return `      <tr>
+                        <td>${r.id}</td>
+                        <td>${formatDateForTable(r.rent_date)}</td>
+                        <td>${r.hours_rented}</td>
+                        <td>${r.rent_amount}</td>
+                        <td>${r.renter}</td>
+                    </tr>
+                    `
+
+            }).join("")
+            bodyTable.innerHTML += rows
+        }
+        findData()
+    </script>
+</body>
+
+</html>
