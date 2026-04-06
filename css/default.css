@@ -1,16 +1,17 @@
-*{
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&display=swap');
+
+* {
     margin: 0;
     padding: 0;
-    box-sizing: border-box;        
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Fredoka", sans-serif;
 }
 
 html {
     width: 100%;
 }
 
-tr {
-    background-color: white;
-}
-tr:nth-child(even) {
-  background-color: #ebfafd;
-}
+
