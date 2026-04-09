@@ -7,6 +7,11 @@
     <title>Trampoline rental</title>
     <link rel="stylesheet" href="css/default.css">
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+        integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script type="module" src="js/index.js"></script>
+
 </head>
 
 <body>
@@ -17,77 +22,55 @@
         <section>
             <img src="assets/principal.png" alt="Crianças brincando em trampolim" loading="lazy" class="bg-img">
         </section>
-        <section class="top-site">
-            <div>
-                <h2>Rental Management</h2>
-                <table id="table" style="width: 100%;">
-                    <thead>
+        <section>
+            <div class="container">
+                <div>
+                    <h2>Gerenciamento de Alugueis</h2>
+                    <hr style="  border-top: 1px solid #2152d6;">
 
-                        <tr>                                                        
-                            <th>ID</th>
-                            <th>Data Aluguel</th>
-                            <th>Horas de Festa</th>
-                            <th>Valor do aluguel</th>
-                            <th>Locatário</th>
-                        </tr>
-                    </thead>
-                    <tbody id="body-table">
-                    </tbody>
-                </table>
+                    <form id="form" class="rental-form" action="/rent" method="POST">
+                        <div class="field">
+                            <label for="rent_date">Data do aluguel</label>
+                            <input type="date" id="rent_date" name="rent_date" required>
+                        </div>
+
+                        <div class="field">
+                            <label for="hours_rented">Horas de festa</label>
+                            <input type="number" id="hours_rented" name="hours_rented" max="12" >
+                        </div>
+
+                        <div class="field">
+                            <label for="rent_amount">Valor do aluguel</label>
+                            <input type="text" id="rent_amount" name="rent_amount" pattern="^\d{1,3}(\.\d{3})*,\d{2}$" title="Formato: 1.234,56" required>
+                        </div>
+
+                        <div class="field">
+                            <label for="renter">Locatário</label>
+                            <input type="text" id="renter" name="renter" required>
+                        </div>
+                        <button type="submit" title="Agendar"> <i class="fa-solid fa-plus"
+                                style="color: white; padding-bottom: 5px;"></i></button>
+
+                    </form>
+                    <div class="table-wrapper">
+                        <table id="table">
+                            <thead>
+                                <tr>
+                                    <th>Ações</th>
+                                    <th>Data Aluguel</th>
+                                    <th>Horas de Festa</th>
+                                    <th>Valor do aluguel</th>
+                                    <th>Locatário</th>
+                                </tr>
+                            </thead>
+                            <tbody id="body-table">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </section>
     </main>
-    <script>
-        const baseApi = "http://127.0.0.1:5000"
-        const dateFormatter = new Intl.DateTimeFormat("pt-BR", {
-            weekday: "long",
-            day: "2-digit",
-            month: "2-digit",
-            year: "numeric"
-        })
-        const formatDateForTable = (date) => {
-            const dateProcessed = new Date(`${date}T00:00:00`)
-            return dateFormatter.format(dateProcessed);
-
-        }
-        const formatCurrencyBRL = (value) => Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
-
-        const getAllRents = async () => {
-
-            try {
-                const response = await fetch(`${baseApi}/rent`)
-                const data = await response.json()
-                if (!response.ok) {
-                    alert(data.message ?? 'Ocorreu um erro')
-                    return []
-                }
-                return data
-            } catch (error) {
-                alert('Erro ao se conectar com servidor')
-            }
-        }
-
-        const renderTable = async () => {
-            const rents = await getAllRents()
-
-            const rows = rents.map(rent => {
-                return `      <tr>
-                        <td>${rent.id}</td>
-                        <td>${formatDateForTable(rent.rent_date)}</td>
-                        <td>${rent.hours_rented}h</td>
-                        <td>${formatCurrencyBRL(rent.rent_amount)}</td>
-                        <td>${rent.renter}</td>
-                    </tr>
-                    `
-
-            }).join("")
-            const bodyTable = document.getElementById('body-table')
-            bodyTable.innerHTML = rents.length === 0
-                ? `<tr><td colspan="5">Não foram localizados registros</td></tr>`
-                : rows
-        }
-        renderTable()
-    </script>
 </body>
 
 </html>

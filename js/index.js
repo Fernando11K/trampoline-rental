@@ -1,0 +1,168 @@
+import { validationMessagePt } from "./validation-messages.js";
+
+const baseApi = "http://127.0.0.1:5000";
+
+const dateFormatter = new Intl.DateTimeFormat("pt-BR", {
+    weekday: "long",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric"
+})
+
+const clearErrors = () => {
+    document.querySelectorAll(".input-error").forEach(el => {
+        el.classList.remove("input-error");
+    });
+
+    document.querySelectorAll(".field-error").forEach(el => {
+        el.classList.remove("field-error");
+    });
+
+    document.querySelectorAll(".error-message").forEach(el => {
+        el.remove();
+    });
+};
+
+const applyErrors = (errors) => {
+    errors.forEach(error => {
+        const field = error.loc[0];
+        if (!field) return;
+
+        const input = document.querySelector(`[name="${field}"]`);
+
+        if (input) {
+            input.classList.add("input-error");
+            input.parentElement.classList.add("field-error");
+
+            const message = document.createElement("small");
+            message.classList.add("error-message");
+            message.innerText = validationMessagePt(error);
+
+            input.parentElement.appendChild(message);
+        }
+    });
+};
+
+
+const formatDateForTable = (date) => {
+    const dateProcessed = new Date(`${date}T00:00:00`)
+    return dateFormatter.format(dateProcessed);
+
+}
+const formatCurrencyBRL = (value) => Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+
+const getAllRents = async () => {
+    try {
+        const response = await fetch(`${baseApi}/rent`);
+        const body = await response.json();
+        if (!response.ok) {
+            alert(body?.message ?? "Ocorreu um erro");
+            return [];
+        }
+        return Array.isArray(body) ? body : [];
+    } catch {
+        alert("Erro ao se conectar com servidor");
+        return [];
+    }
+};
+
+const renderTable = async () => {
+    const rents = await getAllRents()
+    const list = Array.isArray(rents) ? rents : []
+
+    const rows = list.map(rent => {
+        return `      <tr>
+                        <td>
+                        <button type="button" title="Cancelar aluguel" data-action="cancel-rent" data-rent-id="${rent.id}">
+                            <i class="fa-solid fa-ban" style="color: rgb(242, 21, 21);"></i>
+                        </button>
+                        </td>
+                        <td>${formatDateForTable(rent.rent_date)}</td>
+                        <td>${rent.hours_rented}h</td>
+                        <td>${formatCurrencyBRL(rent.rent_amount)}</td>
+                        <td>${rent.renter}</td>
+                    </tr>
+                    `
+
+    }).join("")
+
+    const bodyTable = document.getElementById('body-table')
+    bodyTable.innerHTML = list.length === 0
+        ? `<tr><td colspan="5">Não foram localizados registros</td></tr>`
+        : rows
+}
+
+const cancelRent = async (rentID) => {
+    try {
+        const response = await fetch(`${baseApi}/rent/${rentID}`, { method: "DELETE" });
+        const body = await response.json();
+        alert(body?.message ?? "Não foi possível cancelar.");
+        if (response.ok) {
+            renderTable();
+        }
+    } catch {
+        alert("Erro ao se conectar com servidor");
+    }
+};
+
+
+const formulario = document.getElementById("form");
+
+document.getElementById("body-table").addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-action='cancel-rent']");
+    if (!btn) return;
+    const id = btn.dataset.rentId;
+    if (id != null && id !== "") {
+        cancelRent(Number(id));
+    }
+});
+
+formulario.addEventListener("submit", (evento) => {
+    evento.preventDefault();
+
+    const hoursRaw = formulario.hours_rented.value.trim();
+    const dados = {
+        rent_date: formulario.rent_date.value,
+        hours_rented: Number(formulario.hours_rented.value),
+        rent_amount: formulario?.rent_amount?.value?.replace(/\./g, "")?.replace(",", "."),
+        renter: formulario.renter.value
+    };
+    if (hoursRaw !== "") {
+        dados.hours_rented = Number(hoursRaw);
+    }
+
+    scheduleRental(dados)
+});
+
+
+
+const scheduleRental = async (dados) => {
+    try {
+        clearErrors();
+        const response = await fetch(`${baseApi}/rent`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(dados),
+        });
+        const body = await response.json();
+
+        if (response.status === 201) {
+            alert("Adicionado com sucesso");
+            renderTable();
+            return;
+        }
+
+        if (Array.isArray(body)) {
+            applyErrors(body);
+            return;
+        }
+
+        alert(body?.message ?? "Não foi possível agendar.");
+    } catch {
+        alert("Erro de conexão com o servidor");
+    }
+};
+
+
+
+renderTable()
