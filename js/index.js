@@ -36,7 +36,7 @@ const applyErrors = (errors) => {
 
             const message = document.createElement("small");
             message.classList.add("error-message");
-            message.innerText = validationMessagePt(error);
+            message.innerText = validationMessagePt(error)?.replace("Value error,", "")?.trim();;
 
             input.parentElement.appendChild(message);
         }
