@@ -94,7 +94,7 @@ const renderTable = async () => {
 
 const cancelRent = async (rentID) => {
     try {
-        const response = await fetch(`${baseApi}/rent/${rentID}`, { method: "DELETE" });
+        const response = await fetch(`${baseApi}/rent/${rentID}`, { method: "PATCH" });
         const body = await response.json();
         alert(body?.message ?? "Não foi possível cancelar.");
         if (response.ok) {
