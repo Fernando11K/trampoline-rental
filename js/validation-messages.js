@@ -1,4 +1,4 @@
-export const validationMessagePt =(error) => {
+const validationMessagePt =(error) => {
     const { type, ctx } = error;
     switch (type) {
         case "missing":

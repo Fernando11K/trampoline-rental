@@ -1,5 +1,3 @@
-import { validationMessagePt } from "./validation-messages.js";
-
 const baseApi = "http://127.0.0.1:5000";
 
 const dateFormatter = new Intl.DateTimeFormat("pt-BR", {
@@ -19,7 +17,7 @@ const clearErrors = () => {
     });
 
     document.querySelectorAll(".error-message").forEach(el => {
-        el.remove();
+        el.innerText = "";
     });
 };
 
@@ -34,11 +32,10 @@ const applyErrors = (errors) => {
             input.classList.add("input-error");
             input.parentElement.classList.add("field-error");
 
-            const message = document.createElement("small");
-            message.classList.add("error-message");
-            message.innerText = validationMessagePt(error)?.replace("Value error,", "")?.trim();;
-
-            input.parentElement.appendChild(message);
+            const message = input.parentElement.querySelector(`.error-message[data-error-for="${field}"]`);
+            if (message) {
+                message.innerText = validationMessagePt(error)?.replace("Value error,", "")?.trim();
+            }
         }
     });
 };

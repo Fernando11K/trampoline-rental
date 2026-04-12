@@ -94,10 +94,6 @@ label {
     align-items: flex-start;
 }
 
-.rental-form>button {
-    align-self: flex-end;
-    flex-shrink: 0;
-}
 
 .rental-form>div {
     flex: 1;
@@ -166,11 +162,14 @@ label {
 
 .error-message {
     color: red;
-    font-size: 12px;
+    font-size: 13px;
     display: block;
     margin-top: 4px;
     text-align: left;
+    min-height: 32px;
+
 }
+
 
 .field-error input,
 .field-error input[type="number"],
@@ -178,6 +177,7 @@ label {
     border: 2px solid #c62828 !important;
     outline: none;
     box-shadow: none;
+
 }
 
 /* Números e datas no Chrome/Safari costumam ter aparência própria que enfraquece a borda de erro */
@@ -191,4 +191,28 @@ label {
     appearance: none;
     -webkit-appearance: none;
     margin: 0;
+}
+
+.rental-form>.schedule-button {
+    display: flex;    
+    align-self: center;        
+    justify-content: flex-start;
+    color: white;
+    padding-bottom: 18px;
+    flex: 0;
+}
+
+.submit-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.submit-btn i {
+    display: block;
+    margin: 0;
+    padding: 0;
+    color: white;
+    line-height: 1;
 }
