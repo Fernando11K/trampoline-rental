@@ -47,6 +47,7 @@ const formatDateForTable = (date) => {
 
 }
 const formatCurrencyBRL = (value) => Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+const getRentStatus = (canceled) => canceled ? "Cancelado" : "Agendado";
 
 const getAllRents = async () => {
     try {
@@ -68,15 +69,25 @@ const renderTable = async () => {
     const list = Array.isArray(rents) ? rents : []
 
     const rows = list.map(rent => {
+        const actionButton = rent.canceled
+            ? `<button type="button" title="Reagendar aluguel" data-action="reactivate-rent" data-rent-id="${rent.id}">
+                <i class="fa-solid fa-rotate-left" style="color: rgb(21, 85, 242);"></i>
+              </button>`
+            : `<button type="button" title="Cancelar aluguel" data-action="cancel-rent" data-rent-id="${rent.id}">
+                <i class="fa-solid fa-ban" style="color: rgb(242, 21, 21);"></i>
+              </button>`;
+
         return `      <tr>
                         <td>
-                        <button type="button" title="Cancelar aluguel" data-action="cancel-rent" data-rent-id="${rent.id}">
-                            <i class="fa-solid fa-ban" style="color: rgb(242, 21, 21);"></i>
+                        ${actionButton}
+                        <button type="button" title="Excluir agendamento" data-action="delete-rent" data-rent-id="${rent.id}">
+                            <i class="fa-solid fa-trash" style="color: rgb(128, 128, 128);"></i>
                         </button>
                         </td>
                         <td>${formatDateForTable(rent.rent_date)}</td>
                         <td>${rent.hours_rented}h</td>
                         <td>${formatCurrencyBRL(rent.rent_amount)}</td>
+                        <td>${getRentStatus(rent.canceled)}</td>
                         <td>${rent.renter}</td>
                     </tr>
                     `
@@ -85,7 +96,7 @@ const renderTable = async () => {
 
     const bodyTable = document.getElementById('body-table')
     bodyTable.innerHTML = list.length === 0
-        ? `<tr><td colspan="5">Não foram localizados registros</td></tr>`
+        ? `<tr><td colspan="6">Não foram localizados registros</td></tr>`
         : rows
 }
 
@@ -102,15 +113,49 @@ const cancelRent = async (rentID) => {
     }
 };
 
+const reactivateRent = async (rentID) => {
+    try {
+        const response = await fetch(`${baseApi}/rent/${rentID}/reactivate`, { method: "PATCH" });
+        const body = await response.json();
+        alert(body?.message ?? "Não foi possível reagendar.");
+        if (response.ok) {
+            renderTable();
+        }
+    } catch {
+        alert("Erro ao se conectar com servidor");
+    }
+};
+
+const deleteRent = async (rentID) => {
+    try {
+        const response = await fetch(`${baseApi}/rent/${rentID}`, { method: "DELETE" });
+        const body = await response.json();
+        alert(body?.message ?? "Não foi possível excluir.");
+        if (response.ok) {
+            renderTable();
+        }
+    } catch {
+        alert("Erro ao se conectar com servidor");
+    }
+};
+
 
 const formulario = document.getElementById("form");
 
 document.getElementById("body-table").addEventListener("click", (e) => {
-    const btn = e.target.closest("[data-action='cancel-rent']");
+    const btn = e.target.closest("[data-action]");
     if (!btn) return;
     const id = btn.dataset.rentId;
-    if (id != null && id !== "") {
+    if (id == null || id === "") return;
+
+    if (btn.dataset.action === "cancel-rent") {
         cancelRent(Number(id));
+    }
+    if (btn.dataset.action === "reactivate-rent") {
+        reactivateRent(Number(id));
+    }
+    if (btn.dataset.action === "delete-rent") {
+        deleteRent(Number(id));
     }
 });
 
